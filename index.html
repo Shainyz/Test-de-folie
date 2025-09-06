@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Test de folie Discord</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      text-align: center;
+      max-width: 700px;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 30px;
+    }
+    .question {
+      font-size: 18px;
+      margin: 20px 0;
+    }
+    .btn-container {
+      margin: 15px 0;
+    }
+    .btn {
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      margin: 5px;
+      cursor: pointer;
+      color: white;
+    }
+    .btn-yes { background-color: #28a745; }
+    .btn-no { background-color: #dc3545; }
+    .btn-start { background-color: #007bff; }
+    .btn:hover { opacity: 0.85; }
+
+    /* Styles du récapitulatif */
+    .recap { text-align: left; margin-top: 20px; }
+    .low { color: #28a745; }     /* Vert */
+    .mid { color: #ffd700; }     /* Jaune */
+    .high { color: #ff8c00; }    /* Orange */
+    .extreme { color: #ff4444; } /* Rouge */
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Écran d'introduction -->
+    <div id="intro">
+      <h1>Bienvenue au Test de folie Discord !</h1>
+      <p>Découvrez à quel point vous êtes unique grâce à ce quiz un peu fou 😜</p>
+      <button id="startBtn" class="btn btn-start">Commencer</button>
+    </div>
+
+    <!-- Quiz -->
+    <div id="quiz" style="display:none;">
+      <div id="question" class="question"></div>
+      <div id="answers" class="btn-container"></div>
+      <p id="result" style="white-space: pre-line;"></p>
+      <div id="recap" class="recap"></div>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      { q: "Vous faites des sleepcall mais vous ne concluez jamais", pts: 10 },
+      { q: "Vous restez seul dans un vocal pendant des heures", pts: 10 },
+      { q: "Vous spammez « allo ? » dans le vocal même si tout le monde parle déjà", pts: 10 },
+      { q: "Vous supprimez vos anciens messages justes pour que les gens se demandent ce que vous aviez dit", pts: 10 },
+      { q: "Vous posez des questions et supprimez le message avant qu’on vous réponde", pts: 10 },
+      { q: "Vous changez votre pseudo pour une suite de symboles illisibles", pts: 10 },
+      { q: "Vous rejoignez un vocal, vous mettez votre micro ouvert et vous partez faire autre chose et on entend tout ce que vous faites", pts: 10 },
+      { q: "Vous partez d’un vocal en rage-quit… pour revenir 3 secondes après", pts: 10 },
+      { q: "Vous posez une question, puis vous bloquez la personne avant qu’elle réponde", pts: 10 },
+      { q: "Vous envoyez des MP à des inconnus avec juste un point « . » et rien d’autre", pts: 10 },
+      { q: "Vous vous déconnectez en boucle quand quelqu’un vous mute server", pts: 10 },
+      { q: "Vous croyez que les réalisateurs de films et de jeux vidéo vous dévoilent secrètement des complots.", pts: 20 },
+      { q: "Vous pensez être un Messi détenteur de toute vérité", pts: 20 },
+      { q: "Vous surveillez quelqu’un sur Insta pour rencontrer la personne irl sans qu’il/elle le sache", pts: 30 },
+      { q: "Vous êtes intimement convaincu que la terre est plate", pts: 30 },
+      { q: "Vous vous énervez facilement quand on vous traite de fou", pts: 10 },
+      { q: "Vous êtes bénéficiaire de l’allocation adulte handicapé", pts: 20 },
+      { q: "Vous confondez souvent des personnes avec d’autre", pts: 20 },
+      { q: "Les personnes de votre entourage vous disent que vous faites des tunnels.", pts: 20 },
+      { q: "Vous ne voyez plus le sol de votre maison depuis plusieurs années", pts: 50 },
+      { q: "Souvent, les gens imitent votre façon de parler et cela vous agace.", pts: 10 },
+      { q: "Vous parlez sans vous arrêtez même quand vous savez que le sujet n'intéresse que vous exemple : les ordinateurs, la Steam deck, les voitures, tales, les gésiers de canard.", pts: 20 },
+      { q: "Vous avez des addictions a la drogue, a l'alcool ou aux médicaments.", pts: 20 },
+      { q: "Vous avez trouver votre copain(e) pendant votre séjour en HP.", pts: 40 },
+      { q: "Vous êtes Belge ou Canadien sur discord", pts: 10 },
+      { q: "Vous passez en sous-vêtements devant la caméra sans avoir conscience que vous l'êtes", pts: 30 },
+      { q: "Vous montrez votre sexe en camera", pts: 50 },
+      { q: "Vous avez déjà enregistrer des photos de Ticon, Rosey, Anthony, Jango, Mahnon.. ect", pts: 30 },
+      { q: "Vous les regardez parfois tout seul pour rigoler", pts: 30 },
+      { q: "Vous avez un dossier discord avec des sous dossiers avec les pseudos des membres de discord.", pts: 40 },
+      { q: "Vous avez un server dédier à cela.", pts: 50 },
+      { q: "Vous mettez des notes sur le profil des personnes que vous n’aimez pas.", pts: 20 },
+      { q: "Vous avez déjà envisagé une relation de couple avec des femmes sur discord.", pts: 20 },
+      { q: "Certaines sont drogués ou alcoolique mais ça ne vous dérange pas", pts: 10 },
+      { q: "Vous avez fait un rendez-vous bagarre", pts: 20 },
+      { q: "Vous avez des bouteilles d’urines prêtes à exploser", pts: 30 },
+      { q: "Tout peut vous servir de cendrier même vos bols et vos assiettes", pts: 20 },
+      { q: "Elle a 17 ans mais ça passe", pts: 50 },
+      { q: "Vous avez fait ce test pour vous rassurer", pts: 10 }
+    ];
+
+    let current = 0;
+    let score = 0;
+    let answers = [];
+
+    const introEl = document.getElementById("intro");
+    const quizEl = document.getElementById("quiz");
+    const questionEl = document.getElementById("question");
+    const answersEl = document.getElementById("answers");
+    const resultEl = document.getElementById("result");
+    const recapEl = document.getElementById("recap");
+    const startBtn = document.getElementById("startBtn");
+
+    startBtn.addEventListener("click", () => {
+      introEl.style.display = "none";
+      quizEl.style.display = "block";
+      loadQuestion();
+    });
+
+    function loadQuestion() {
+      if (current < questions.length) {
+        const q = questions[current];
+        questionEl.textContent = q.q;
+        answersEl.innerHTML = "";
+
+        const yesBtn = document.createElement("button");
+        yesBtn.textContent = "Oui";
+        yesBtn.classList.add("btn", "btn-yes");
+        yesBtn.onclick = () => { 
+          score += q.pts; 
+          answers.push({ ...q, ans: "Oui" });
+          nextQuestion(); 
+        };
+
+        const noBtn = document.createElement("button");
+        noBtn.textContent = "Non";
+        noBtn.classList.add("btn", "btn-no");
+        noBtn.onclick = () => { 
+          answers.push({ ...q, ans: "Non" });
+          nextQuestion(); 
+        };
+
+        answersEl.appendChild(yesBtn);
+        answersEl.appendChild(noBtn);
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function nextQuestion() {
+      current++;
+      loadQuestion();
+    }
+
+    function finishQuiz() {
+      questionEl.textContent = "Quiz terminé ! 🎉";
+      answersEl.innerHTML = "";
+
+      const total = questions.reduce((acc, q) => acc + q.pts, 0);
+      const percentage = ((score / total) * 100).toFixed(2);
+
+      let message = "";
+      if (percentage <= 20) {
+        message = "Vous êtes plutôt sain d'esprit, rien à signaler 😌.";
+      } else if (percentage <= 30) {
+        message = "Attention, certains comportements peuvent être inquiétants… 😟";
+      } else if (percentage <= 50) {
+        message = "Il serait judicieux de consulter un psychologue pour parler de tout ça 🧠.";
+      } else if (percentage <= 70) {
+        message = "Votre score indique des tendances très sombres… prenez soin de vous ⚠️.";
+      } else {
+        message = "C'est irrattrapable ! Vous êtes complètement déjanté 😵‍💫.";
+      }
+
+      resultEl.textContent = `Votre score final : ${score} / ${total} points (${percentage}%)\n${message}`;
+
+      // Réponses Oui classées
+      const yesAnswers = answers.filter(a => a.ans === "Oui");
+      yesAnswers.sort((a, b) => a.pts - b.pts);
+
+      recapEl.innerHTML = "<h3>Vos réponses OUI classées :</h3>";
+      yesAnswers.forEach(a => {
+        let cls = "low";
+        if (a.pts >= 20 && a.pts < 30) cls = "mid";
+        else if (a.pts >= 30 && a.pts < 50) cls = "high";
+        else if (a.pts >= 50) cls = "extreme";
+
+        const p = document.createElement("p");
+        p.className = cls;
+        p.textContent = `${a.q} (${a.pts} pts)`;
+        recapEl.appendChild(p);
+      });
+    }
+
+    // --- Protections ---
+    document.addEventListener("contextmenu", e => e.preventDefault());
+    document.onkeydown = function(e) {
+      if (e.keyCode == 123) return false; 
+      if (e.ctrlKey && e.shiftKey && 
+          (e.keyCode == 'I'.charCodeAt(0) || 
+           e.keyCode == 'J'.charCodeAt(0) || 
+           e.keyCode == 'C'.charCodeAt(0))) return false; 
+      if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; 
+    };
+    setInterval(function() {
+      const before = new Date();
+      debugger;
+      const after = new Date();
+      if (after - before > 100) {
+        alert("Inspection bloquée !");
+        window.close();
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
